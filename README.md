@@ -2,6 +2,10 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
+### Automatic Execution:
+https://e-cart-deployed.netlify.app/
+
+### Manual Execution:
 First, run the development server:
 
 ```bash
