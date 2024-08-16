@@ -1,21 +1,26 @@
 "use client"
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '../../dynamsoft.config.js';
 import { CameraEnhancer, CameraView } from 'dynamsoft-camera-enhancer';
 import { CaptureVisionRouter } from 'dynamsoft-capture-vision-router';
 import { MultiFrameResultCrossFilter } from 'dynamsoft-utility';
 import { rdb } from '@/app/firebase.js';
-import { get, ref } from 'firebase/database';
+import { get, ref, push, update, set  } from 'firebase/database';
 import { useRouter } from 'next/navigation';
+import { auth } from '@/app/firebase.js';
+import Navbar from "@/components/Navbar";
 import './VideoCapture.css';
 
 const strErrorDestroyed = 'videoCapture component destroyed';
 
 function VideoCapture({ params }) {
+  const [results, setResults] = useState(""); 
   const uiContainer = useRef(null);
   const resultsContainer = useRef(null);
   const router = useRouter();
+  const decodedString = decodeURIComponent(params.productName);
+
 
   useEffect(() => {
     let resolveInit;
@@ -23,10 +28,8 @@ function VideoCapture({ params }) {
       resolveInit = r;
     });
     let bDestroyed = false;
-
     let cvRouter;
     let cameraEnhancer;
-
     (async () => {
       try {
         // Create a `CameraEnhancer` instance for camera control and a `CameraView` instance for UI control.
@@ -46,18 +49,49 @@ function VideoCapture({ params }) {
         if (bDestroyed) throw new Error(strErrorDestroyed);
         cvRouter.setInput(cameraEnhancer);
 
+        const AddToUserCart = async (decodedString) => {
+          // Reference to the user's product in the Realtime Database
+          const dbRef = ref(rdb, `userProducts/${auth.currentUser.uid}/${decodedString}`);
+          console.log(auth.currentUser.uid);
+          try {
+            // Get the current data at the reference
+            const snap = await get(dbRef);
+            
+            if (snap.exists()) {
+              // If the product already exists, update its quantity and other properties
+              await update(dbRef, {
+                quantity: snap.val().quantity + 1, // Increment the quantity
+                price: 10 // Update the price if necessary, or keep the same
+              });
+            } else {
+              // If the product doesn't exist, set a new entry
+              await set(dbRef, {
+                productName: decodedString,
+                quantity: 1,
+                price: 10
+              });
+            }
+          } catch (error) {
+            console.error("Error updating the user cart:", error);
+          }
+        };
+ 
         const CheckInDB = async (barcode) => {
-
-          const dbRef = ref(rdb, `barcodes/${params.productName}/${barcode}`);
+          
+          const dbRef = ref(rdb, `barcodes/${decodedString}/${barcode}`);
           const snap = await get(dbRef);
           if (snap.exists()) {
             const prod = snap.val();
             if(prod > 0){
-              alert('Product found in database');
+              
+              AddToUserCart(decodedString);
+
+              alert('Product added to cart');
               router.push(`/cart`);
             }
           } else {
             console.log('Barcode not found');
+            setResults('Product not found with this barcode');
           }
         };
 
@@ -118,13 +152,17 @@ function VideoCapture({ params }) {
         if (cameraEnhancer) cameraEnhancer.dispose();
       } catch (_) {}
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+
   return (
-    <div>
+    <div className='h-full'>
+      <Navbar />
       <div ref={uiContainer} className="div-ui-container"></div>
       <p>Results:</p>
       <div ref={resultsContainer} className="div-results-container"></div>
+      <div>{results}</div>
     </div>
   );
 }
