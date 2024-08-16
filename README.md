@@ -1,3 +1,4 @@
+This project is an E-Cart System built using Next.js and integrated with a machine learning model to enhance the self checkout system. The system leverages machine learning for scanning of products and adding it to the cart .
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
