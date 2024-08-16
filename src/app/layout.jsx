@@ -16,8 +16,10 @@ export default function RootLayout({ children }) {
         <link rel="shortcut icon" href="/favicon.png" type="image/x-icon" />      
       </head>
       <body className={urban.className}>
-        <Navbar />
-        {children}
+        <main className="h-screen w-full">
+          <Navbar />
+          {children}
+        </main>
       </body> 
     </html>
   );

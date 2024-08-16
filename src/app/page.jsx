@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as tmImage from "@teachablemachine/image";
 import { rdb } from "@/app/firebase";
 import { ref, get } from "firebase/database";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const videoRef = useRef(null);
@@ -11,8 +12,9 @@ export default function Home() {
   const cropCanvasRef = useRef(null);
   const croppedCanvasRef = useRef(null);
   const [model, setModel] = useState(null);
-  const width = 640;
-  const height = 480;
+  const router = useRouter();
+  const width = 900;
+  const height = 600;
 
   const checkIfProductExist = async (prediction) => {
     const labelContainer = document.getElementById("label-answer");
@@ -28,6 +30,7 @@ export default function Home() {
     console.log(product);
     if (product > 0) {
       labelContainer.innerHTML = `Product: ${productName}`;
+      router.push(`/check-barcode/${productName}`);
     }else{
       labelContainer.innerHTML = `Product: Not Found`;
     }
@@ -115,16 +118,15 @@ export default function Home() {
 
     loop(); // Call once for the initial prediction
 
-    const intervalId = setInterval(loop, 1000); // Repeat every 1 second
+    const intervalId = setInterval(loop, 3000); // Repeat every 1 second
 
     return () => clearInterval(intervalId);
   }, [model]);
 
   return (
-    <section className="flex h-screen w-full">
-      <div className="flex w-1/4 bg-gray-400" />
-      <div className="flex w-3/4 py-3 relative">
-        <video ref={videoRef} className="w-full" style={{ objectFit: 'cover' }} />
+    <section className="w-full h-[85%]">
+      <div className="flex w-full h-full py-3">
+        <video ref={videoRef} className="w-full h-full" style={{ objectFit: 'cover' }} />
         <div
           ref={bboxRef}
           className="absolute top-1/2 left-1/2 border-4 border-green-500 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-70"
