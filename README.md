@@ -45,4 +45,11 @@ https://e-cart-deployed.netlify.app/
 
 ## Demo
 
-[Youtube](https://www.youtube.com/watch?v=-ICge2HJl_w)
+<div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+    <a href="https://www.youtube.com/watch?v=-ICge2HJl_w">
+        <img src="https://img.youtube.com/vi/-ICge2HJl_w/hqdefault.jpg" alt="W3Schools Tutorial">
+    </a>
+</div>
+
+
+
